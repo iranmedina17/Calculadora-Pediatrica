@@ -1,4 +1,4 @@
-const CACHE_NAME = "pcr-pediatrica-v3";
+const CACHE_NAME = "pcr-pediatrica-v4";
 
 const APP_SHELL = [
   "./",
