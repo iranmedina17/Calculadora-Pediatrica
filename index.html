@@ -528,7 +528,7 @@
         </div>
 
         <div class="button-row">
-          <button class="btn" type="button" onclick="calcular()">Calcular dosis</button>
+          <button class="btn" type="button" onclick="calcular(true)">Calcular dosis</button>
           <button class="btn secondary" type="button" onclick="limpiarPaciente()">Limpiar paciente</button>
         </div>
 
@@ -770,13 +770,15 @@
       document.getElementById(contenedor).innerHTML = html;
     }
 
-    function calcular() {
+    function calcular(mostrarAlerta = false) {
       const nombre = document.getElementById("nombre").value.trim();
       const edad = parseFloat(document.getElementById("edad").value);
       const peso = parseFloat(document.getElementById("peso").value);
 
       if (!isFinite(edad) || edad < 0 || !isFinite(peso) || peso <= 0) {
-        alert("Ingresa edad y peso válidos.");
+        if (mostrarAlerta) {
+          alert("Ingresa edad y peso válidos.");
+        }
         return;
       }
 
@@ -817,7 +819,7 @@
       document.getElementById("nombre").value = "";
       document.getElementById("edad").value = "8";
       document.getElementById("peso").value = "36";
-      calcular();
+      calcular(false);
     }
 
     function cargarPresentaciones() {
@@ -830,9 +832,9 @@
       </tr>`).join("");
     }
 
-    document.getElementById("edad").addEventListener("input", calcular);
-    document.getElementById("peso").addEventListener("input", calcular);
-    document.getElementById("nombre").addEventListener("input", calcular);
+    document.getElementById("edad").addEventListener("input", () => calcular(false));
+    document.getElementById("peso").addEventListener("input", () => calcular(false));
+    document.getElementById("nombre").addEventListener("input", () => calcular(false));
 
     cargarPresentaciones();
     calcular();
