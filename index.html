@@ -1,0 +1,851 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>PCR Pediátrica</title>
+  <meta name="description" content="Calculadora rápida de apoyo para PCR pediátrica, vía aérea y dosis por peso." />
+
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="icon-192.png" type="image/png">
+  <link rel="apple-touch-icon" href="logo.png">
+
+  <meta name="theme-color" content="#0b3b4a">
+  <meta name="application-name" content="PCR Pediátrica">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="PCR Pediátrica">
+
+  <style>
+    :root {
+      --bg: #f4f7f8;
+      --surface: #ffffff;
+      --surface-soft: #eef7f6;
+      --ink: #12202a;
+      --muted: #60717c;
+      --line: #d9e4e8;
+      --primary: #0b6477;
+      --primary-dark: #083844;
+      --primary-soft: #dff4f3;
+      --coral: #d95f4c;
+      --amber: #f5a524;
+      --green: #16794c;
+      --danger: #b42318;
+      --shadow: 0 18px 45px rgba(22, 52, 65, .10);
+      --radius: 8px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      background:
+        linear-gradient(180deg, rgba(11, 100, 119, .10), rgba(244, 247, 248, 0) 360px),
+        var(--bg);
+      color: var(--ink);
+      font-family: Inter, "Segoe UI", Roboto, Arial, sans-serif;
+      line-height: 1.45;
+    }
+
+    button,
+    input {
+      font: inherit;
+    }
+
+    .hero {
+      background:
+        linear-gradient(135deg, rgba(8, 56, 68, .96), rgba(11, 100, 119, .90)),
+        url("logo.png") center right 8% / auto 88% no-repeat;
+      color: #ffffff;
+      min-height: 280px;
+      padding: 28px 20px 42px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(90deg, rgba(8, 56, 68, .90), rgba(8, 56, 68, .62) 58%, rgba(8, 56, 68, .86));
+      pointer-events: none;
+    }
+
+    .hero__inner {
+      max-width: 1180px;
+      margin: 0 auto;
+      position: relative;
+      z-index: 1;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin: 0 0 18px;
+      color: #bfe8e6;
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+
+    .eyebrow::before {
+      content: "";
+      width: 9px;
+      height: 9px;
+      border-radius: 999px;
+      background: var(--amber);
+      box-shadow: 0 0 0 5px rgba(245, 165, 36, .18);
+    }
+
+    h1 {
+      max-width: 720px;
+      margin: 0;
+      font-size: clamp(32px, 5vw, 58px);
+      line-height: 1.02;
+      letter-spacing: 0;
+    }
+
+    .hero p {
+      max-width: 680px;
+      margin: 18px 0 0;
+      color: #d8f3f1;
+      font-size: 18px;
+    }
+
+    .hero__actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 26px;
+    }
+
+    .layout {
+      max-width: 1180px;
+      margin: -34px auto 0;
+      padding: 0 20px 34px;
+      position: relative;
+      z-index: 2;
+    }
+
+    .patient-panel {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(260px, 380px);
+      gap: 16px;
+      align-items: stretch;
+      background: var(--surface);
+      border: 1px solid rgba(217, 228, 232, .85);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 16px;
+    }
+
+    .input-grid {
+      display: grid;
+      grid-template-columns: 1.25fr .75fr .75fr;
+      gap: 12px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 6px;
+      color: #27424d;
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    input {
+      width: 100%;
+      min-height: 46px;
+      padding: 10px 12px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #fbfdfd;
+      color: var(--ink);
+      font-size: 16px;
+      outline: none;
+      transition: border-color .18s ease, box-shadow .18s ease, background .18s ease;
+    }
+
+    input:focus {
+      border-color: var(--primary);
+      background: #ffffff;
+      box-shadow: 0 0 0 4px rgba(11, 100, 119, .12);
+    }
+
+    .button-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 44px;
+      border: 0;
+      border-radius: var(--radius);
+      padding: 10px 16px;
+      background: var(--primary);
+      color: #ffffff;
+      font-weight: 850;
+      cursor: pointer;
+      text-decoration: none;
+      transition: transform .18s ease, background .18s ease, box-shadow .18s ease;
+    }
+
+    .btn:hover {
+      background: var(--primary-dark);
+      box-shadow: 0 10px 24px rgba(11, 100, 119, .22);
+      transform: translateY(-1px);
+    }
+
+    .btn.secondary {
+      background: #edf5f6;
+      color: var(--primary-dark);
+      border: 1px solid #c9dde3;
+    }
+
+    .btn.secondary:hover {
+      background: #dff0f2;
+      box-shadow: none;
+    }
+
+    .summary {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .metric {
+      min-height: 78px;
+      border: 1px solid #cfe2e7;
+      border-radius: var(--radius);
+      background: linear-gradient(180deg, #f7fbfb, #eef7f6);
+      padding: 12px;
+    }
+
+    .metric small {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 750;
+    }
+
+    .metric strong {
+      display: block;
+      margin-top: 5px;
+      color: var(--primary-dark);
+      font-size: 20px;
+      line-height: 1.1;
+      overflow-wrap: anywhere;
+    }
+
+    .notice {
+      margin-top: 14px;
+      border: 1px solid #f2cf8c;
+      border-left: 5px solid var(--amber);
+      border-radius: var(--radius);
+      background: #fff8e8;
+      color: #68420a;
+      padding: 12px 14px;
+      font-size: 14px;
+    }
+
+    .section {
+      margin-top: 26px;
+    }
+
+    .section-header {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 10px;
+    }
+
+    h2 {
+      margin: 0;
+      color: #17323d;
+      font-size: 22px;
+      letter-spacing: 0;
+    }
+
+    .section-header p {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .tag {
+      flex: 0 0 auto;
+      border: 1px solid #cfe2e7;
+      border-radius: 999px;
+      background: #ffffff;
+      color: var(--primary);
+      padding: 6px 10px;
+      font-size: 12px;
+      font-weight: 850;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: 0 10px 28px rgba(22, 52, 65, .07);
+      overflow: hidden;
+    }
+
+    .airway-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 1px;
+      background: var(--line);
+    }
+
+    .airway-item {
+      background: #ffffff;
+      padding: 14px;
+      min-height: 92px;
+    }
+
+    .airway-item small {
+      color: var(--muted);
+      display: block;
+      font-weight: 800;
+      margin-bottom: 8px;
+    }
+
+    .airway-item strong {
+      display: block;
+      color: var(--primary-dark);
+      font-size: 18px;
+      line-height: 1.25;
+    }
+
+    .table-wrap {
+      width: 100%;
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      min-width: 820px;
+      border-collapse: collapse;
+      background: #ffffff;
+    }
+
+    th,
+    td {
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+      font-size: 14px;
+    }
+
+    th {
+      background: #eaf3f4;
+      color: #26434f;
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    tbody tr:hover td {
+      background: #fbfefe;
+    }
+
+    td:first-child strong {
+      color: #102c37;
+    }
+
+    .dose {
+      color: #102c37;
+      font-size: 16px;
+      font-weight: 900;
+      white-space: nowrap;
+    }
+
+    .note {
+      display: inline-block;
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .cap,
+    .ok {
+      display: inline-flex;
+      align-items: center;
+      border-radius: 999px;
+      padding: 4px 8px;
+      font-size: 12px;
+      font-weight: 850;
+    }
+
+    .cap {
+      background: #fff0ee;
+      color: var(--danger);
+    }
+
+    .ok {
+      background: #eaf7ef;
+      color: var(--green);
+    }
+
+    .footer-note {
+      margin: 12px 14px 14px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .print-panel {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 22px;
+    }
+
+    @media (max-width: 920px) {
+      .patient-panel {
+        grid-template-columns: 1fr;
+      }
+
+      .airway-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 680px) {
+      .hero {
+        padding: 24px 16px 38px;
+        background:
+          linear-gradient(135deg, rgba(8, 56, 68, .98), rgba(11, 100, 119, .92)),
+          url("logo.png") center right -80px / auto 70% no-repeat;
+      }
+
+      .hero p {
+        font-size: 16px;
+      }
+
+      .layout {
+        padding: 0 12px 24px;
+      }
+
+      .input-grid,
+      .summary,
+      .airway-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .section-header {
+        display: block;
+      }
+
+      .tag {
+        display: inline-flex;
+        margin-top: 8px;
+      }
+
+      table {
+        min-width: 760px;
+      }
+    }
+
+    @media print {
+      body {
+        background: #ffffff;
+      }
+
+      .hero,
+      .button-row,
+      .print-panel {
+        display: none;
+      }
+
+      .layout {
+        margin: 0;
+        max-width: 100%;
+        padding: 0;
+      }
+
+      .patient-panel,
+      .card {
+        box-shadow: none;
+      }
+
+      .section {
+        break-inside: avoid;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="hero">
+    <div class="hero__inner">
+      <p class="eyebrow">UCI pediátrica · soporte de cálculo rápido</p>
+      <h1>Calculadora rápida PCR pediátrica</h1>
+      <p>Dosis por peso, estimación de vía aérea y material esencial en una interfaz limpia para consulta rápida.</p>
+      <div class="hero__actions">
+        <a class="btn" href="#paciente">Calcular ahora</a>
+        <button class="btn secondary" type="button" onclick="window.print()">Imprimir / PDF</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="layout">
+    <section class="patient-panel" id="paciente" aria-label="Datos del paciente">
+      <div>
+        <div class="input-grid">
+          <div>
+            <label for="nombre">Nombre / identificación</label>
+            <input id="nombre" placeholder="Opcional" autocomplete="off" />
+          </div>
+          <div>
+            <label for="edad">Edad, años</label>
+            <input id="edad" type="number" min="0" step="0.1" value="8" inputmode="decimal" />
+          </div>
+          <div>
+            <label for="peso">Peso, kg</label>
+            <input id="peso" type="number" min="0" step="0.1" value="36" inputmode="decimal" />
+          </div>
+        </div>
+
+        <div class="button-row">
+          <button class="btn" type="button" onclick="calcular()">Calcular dosis</button>
+          <button class="btn secondary" type="button" onclick="limpiarPaciente()">Limpiar paciente</button>
+        </div>
+
+        <div class="notice">
+          Herramienta de apoyo rápido. Verificar siempre concentración disponible, dilución institucional, vía, indicación clínica y dosis máxima antes de administrar. En paro, manda el algoritmo y el equipo clínico.
+        </div>
+      </div>
+
+      <aside class="summary" aria-label="Resumen del paciente">
+        <div class="metric"><small>Paciente</small><strong id="sNombre">—</strong></div>
+        <div class="metric"><small>Edad</small><strong id="sEdad">8 años</strong></div>
+        <div class="metric"><small>Peso</small><strong id="sPeso">36 kg</strong></div>
+        <div class="metric"><small>Superficie corporal estimada</small><strong id="sSC">1,10 m²</strong></div>
+      </aside>
+    </section>
+
+    <section class="section">
+      <div class="section-header">
+        <div>
+          <h2>Vía aérea / material estimado</h2>
+          <p>Referencia rápida para preparación inicial según edad y peso.</p>
+        </div>
+        <span class="tag">Estimación</span>
+      </div>
+
+      <div class="card">
+        <div class="airway-grid">
+          <div class="airway-item"><small>Bolsa-válvula-mascarilla</small><strong id="ambu">—</strong></div>
+          <div class="airway-item"><small>Flujo de O₂</small><strong>10-15 L/min</strong></div>
+          <div class="airway-item"><small>Lámina sugerida</small><strong id="lamina">—</strong></div>
+          <div class="airway-item"><small>Tubo endotraqueal</small><strong id="tubo">—</strong></div>
+          <div class="airway-item"><small>Profundidad oral</small><strong id="oral">—</strong></div>
+          <div class="airway-item"><small>Profundidad nasal</small><strong id="nasal">—</strong></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-header">
+        <div>
+          <h2>Parada cardíaca</h2>
+          <p>Fármacos y energía calculados por peso.</p>
+        </div>
+        <span class="tag">PCR</span>
+      </div>
+      <div id="tablaPCR" class="card"></div>
+    </section>
+
+    <section class="section">
+      <div class="section-header">
+        <div>
+          <h2>Intubación / secuencia de intubación</h2>
+          <p>Dosis iniciales frecuentes para preparación de vía aérea.</p>
+        </div>
+        <span class="tag">RSI</span>
+      </div>
+      <div id="tablaIntubacion" class="card"></div>
+    </section>
+
+    <section class="section">
+      <div class="section-header">
+        <div>
+          <h2>Agentes de reversión</h2>
+          <p>Cálculo de dosis con topes iniciales cuando corresponda.</p>
+        </div>
+        <span class="tag">Reversión</span>
+      </div>
+      <div id="tablaReversion" class="card"></div>
+    </section>
+
+    <section class="section">
+      <div class="section-header">
+        <div>
+          <h2>Otras drogas útiles</h2>
+          <p>Medicamentos de uso frecuente en contexto crítico.</p>
+        </div>
+        <span class="tag">Apoyo</span>
+      </div>
+      <div id="tablaOtras" class="card"></div>
+    </section>
+
+    <section class="section">
+      <div class="section-header">
+        <div>
+          <h2>Presentaciones habituales</h2>
+          <p>Concentraciones usadas para los cálculos de esta versión.</p>
+        </div>
+        <span class="tag">Farmacia</span>
+      </div>
+
+      <div class="card">
+        <div class="table-wrap">
+          <table id="tablaPresentaciones">
+            <thead>
+              <tr>
+                <th>Fármaco</th>
+                <th>Presentación habitual</th>
+                <th>Concentración usada</th>
+                <th>Comentario</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <p class="footer-note">
+          Las presentaciones pueden variar entre hospitales. Esta versión usa concentraciones habituales y, cuando aplica, las diluciones descritas en la hoja original. Ajustar a las ampollas reales de farmacia antes de uso institucional.
+        </p>
+      </div>
+    </section>
+
+    <div class="print-panel">
+      <button class="btn secondary" type="button" onclick="window.print()">Imprimir / guardar como PDF</button>
+    </div>
+  </main>
+
+  <script>
+    const meds = {
+      pcr: [
+        { f: "Adrenalina", prep: "Diluir 1 ml + 9 ml de AD / SSN -> 1:10.000", dosis: "0,01 mg/kg", conc: 0.1, unidad: "mg/ml", calcKg: 0.01, dec: 1 },
+        { f: "Bicarbonato de sodio", prep: "Dilución 1:1 con AD", dosis: "1 mEq/kg", conc: 0.5, unidad: "mEq/ml", calcKg: 1, dec: 0 },
+        { f: "Gluconato de calcio 10%", prep: "Dilución 1:1 con AD", dosis: "0,5 mEq/kg", conc: 0.3, unidad: "mEq/ml", calcKg: 0.5, dec: 0, nota: "Concentración final aproximada usada para reproducir la hoja base." },
+        { f: "Amiodarona", prep: "Ampolla 50 mg/ml", dosis: "5 mg/kg", conc: 50, unidad: "mg/ml", calcKg: 5, dec: 1 }
+      ],
+      intubacion: [
+        { f: "Atropina", prep: "0,5 mg/ml", dosis: "0,02 mg/kg", conc: 0.5, unidad: "mg/ml", calcKg: 0.02, max: 0.5, dec: 1, notaMax: "máx. 0,5 mg" },
+        { f: "Lidocaína 2%", prep: "20 mg/ml", dosis: "1 mg/kg", conc: 20, unidad: "mg/ml", calcKg: 1, dec: 1 },
+        { f: "Midazolam", prep: "5 mg/ml", dosis: "0,2 mg/kg", conc: 5, unidad: "mg/ml", calcKg: 0.2, max: 5, dec: 1, notaMax: "máx. inicial 5 mg" },
+        { f: "Fentanilo", prep: "50 mcg/ml", dosis: "2 mcg/kg", conc: 50, unidad: "mcg/ml", calcKg: 2, max: 50, dec: 1, notaMax: "máx. inicial 50 mcg" },
+        { f: "Tiopental", prep: "20 mg/ml", dosis: "2 mg/kg", conc: 20, unidad: "mg/ml", calcKg: 2, dec: 1 },
+        { f: "Ketamina", prep: "50 mg/ml", dosis: "2 mg/kg", conc: 50, unidad: "mg/ml", calcKg: 2, dec: 1 },
+        { f: "Etomidato", prep: "2 mg/ml", dosis: "0,2 mg/kg", conc: 2, unidad: "mg/ml", calcKg: 0.2, dec: 1 },
+        { f: "Pancuronio", prep: "2 mg/ml", dosis: "0,1 mg/kg", conc: 2, unidad: "mg/ml", calcKg: 0.1, dec: 1 },
+        { f: "Atracurio", prep: "10 mg/ml", dosis: "0,4 mg/kg", conc: 10, unidad: "mg/ml", calcKg: 0.4, dec: 1 },
+        { f: "Rocuronio", prep: "10 mg/ml", dosis: "0,6 mg/kg", conc: 10, unidad: "mg/ml", calcKg: 0.6, dec: 1 }
+      ],
+      reversion: [
+        { f: "Flumazenil", prep: "0,1 mg/ml", dosis: "0,01 mg/kg", conc: 0.1, unidad: "mg/ml", calcKg: 0.01, max: 0.2, dec: 1, notaMax: "máx. inicial 0,2 mg" },
+        { f: "Naloxona", prep: "0,4 mg/ml", dosis: "0,01 mg/kg", conc: 0.4, unidad: "mg/ml", calcKg: 0.01, dec: 1 }
+      ],
+      otras: [
+        { f: "Morfina", prep: "Diluir 1 ml + 9 ml -> 1 mg/ml", dosis: "0,1 mg/kg", conc: 1, unidad: "mg/ml", calcKg: 0.1, dec: 1 },
+        { f: "Diazepam", prep: "5 mg/ml", dosis: "0,5 mg/kg", conc: 5, unidad: "mg/ml", calcKg: 0.5, max: 10, dec: 1, notaMax: "máx. 10 mg" },
+        { f: "Propofol", prep: "10 mg/ml", dosis: "1 mg/kg", conc: 10, unidad: "mg/ml", calcKg: 1, dec: 1 },
+        { f: "Dexmedetomidina", prep: "Diluir 1 ml + 19 ml -> 5 mcg/ml", dosis: "1 mcg/kg", conc: 5, unidad: "mcg/ml", calcKg: 1, dec: 1 }
+      ]
+    };
+
+    const presentaciones = [
+      ["Adrenalina", "1 mg/1 ml", "0,1 mg/ml tras dilución 1:10.000", "Diluir 1 ml + 9 ml de AD/SSN."],
+      ["Bicarbonato de sodio", "8,4% ≈ 1 mEq/ml", "0,5 mEq/ml tras dilución 1:1", "Uso según indicación específica."],
+      ["Gluconato de calcio 10%", "10 ml al 10%", "0,3 mEq/ml final aprox.", "Ajustar según presentación local."],
+      ["Amiodarona", "150 mg/3 ml", "50 mg/ml", ""],
+      ["Atropina", "0,5 mg/1 ml", "0,5 mg/ml", ""],
+      ["Lidocaína 2%", "20 mg/ml", "20 mg/ml", ""],
+      ["Midazolam", "15 mg/3 ml o 50 mg/10 ml", "5 mg/ml", ""],
+      ["Fentanilo", "0,5 mg/10 ml", "50 mcg/ml", ""],
+      ["Tiopental", "Frasco reconstituido", "20 mg/ml", "Depende de dilución institucional."],
+      ["Ketamina", "500 mg/10 ml", "50 mg/ml", ""],
+      ["Etomidato", "20 mg/10 ml", "2 mg/ml", ""],
+      ["Pancuronio", "4 mg/2 ml", "2 mg/ml", ""],
+      ["Atracurio", "50 mg/5 ml", "10 mg/ml", ""],
+      ["Rocuronio", "50 mg/5 ml", "10 mg/ml", ""],
+      ["Flumazenil", "0,5 mg/5 ml", "0,1 mg/ml", ""],
+      ["Naloxona", "0,4 mg/1 ml", "0,4 mg/ml", ""],
+      ["Morfina", "10 mg/1 ml", "1 mg/ml tras dilución 1 ml + 9 ml", ""],
+      ["Diazepam", "10 mg/2 ml", "5 mg/ml", ""],
+      ["Propofol", "1% = 10 mg/ml", "10 mg/ml", ""],
+      ["Dexmedetomidina", "100 mcg/ml", "5 mcg/ml tras dilución 1 ml + 19 ml", "En la hoja base se usa volumen compatible con 5 mcg/ml."]
+    ];
+
+    function fmt(n, d = 1) {
+      if (!isFinite(n)) return "—";
+      return Number(n).toFixed(d).replace(".", ",");
+    }
+
+    function calcularSC(peso) {
+      return 0.1 * Math.pow(peso, 0.67);
+    }
+
+    function calcularTubo(edad) {
+      const cuffed = edad / 4 + 3.5;
+      const uncuffed = edad / 4 + 4;
+      return { cuffed, uncuffed };
+    }
+
+    function ambuPorPeso(peso) {
+      if (peso < 10) return "Pequeño / lactante";
+      if (peso < 30) return "Pediátrico";
+      return "Mediano";
+    }
+
+    function laminaPorEdad(edad) {
+      if (edad < 1) return "Recta 1 o curva 1";
+      if (edad < 3) return "Curva 1-2";
+      if (edad < 8) return "Curva 2";
+      return "Curva 2-3 / mediana";
+    }
+
+    function unidadDosis(unidad) {
+      if (unidad.includes("mcg")) return "mcg";
+      if (unidad.includes("mEq")) return "mEq";
+      return "mg";
+    }
+
+    function tablaFarmacos(lista, contenedor, peso) {
+      let html = `<div class="table-wrap"><table><thead><tr>
+        <th>Fármaco</th>
+        <th>Preparación / concentración</th>
+        <th>Dosis</th>
+        <th>Dosis calculada</th>
+        <th>Volumen</th>
+        <th>Observación</th>
+      </tr></thead><tbody>`;
+
+      lista.forEach(m => {
+        let dosis = m.calcKg * peso;
+        let capped = false;
+
+        if (m.max && dosis > m.max) {
+          dosis = m.max;
+          capped = true;
+        }
+
+        const vol = dosis / m.conc;
+        html += `<tr>
+          <td><strong>${m.f}</strong></td>
+          <td>${m.prep}</td>
+          <td>${m.dosis}</td>
+          <td class="dose">${fmt(dosis, m.dec)} ${unidadDosis(m.unidad)}</td>
+          <td class="dose">${fmt(vol, m.dec)} ml</td>
+          <td>
+            ${capped ? `<span class="cap">Tope aplicado: ${m.notaMax}</span>` : `<span class="ok">Sin tope aplicado</span>`}
+            ${m.nota ? `<br><span class="note">${m.nota}</span>` : ""}
+          </td>
+        </tr>`;
+      });
+
+      html += "</tbody></table></div>";
+      document.getElementById(contenedor).innerHTML = html;
+    }
+
+    function calcular() {
+      const nombre = document.getElementById("nombre").value.trim();
+      const edad = parseFloat(document.getElementById("edad").value);
+      const peso = parseFloat(document.getElementById("peso").value);
+
+      if (!isFinite(edad) || edad < 0 || !isFinite(peso) || peso <= 0) {
+        alert("Ingresa edad y peso válidos.");
+        return;
+      }
+
+      document.getElementById("sNombre").textContent = nombre || "—";
+      document.getElementById("sEdad").textContent = fmt(edad, edad % 1 === 0 ? 0 : 1) + " años";
+      document.getElementById("sPeso").textContent = fmt(peso, 1) + " kg";
+      document.getElementById("sSC").textContent = fmt(calcularSC(peso), 2) + " m²";
+
+      document.getElementById("ambu").textContent = ambuPorPeso(peso);
+      document.getElementById("lamina").textContent = laminaPorEdad(edad);
+
+      const t = calcularTubo(edad);
+      document.getElementById("tubo").textContent = `Con balón: ${fmt(t.cuffed, 1)} mm | sin balón: ${fmt(t.uncuffed, 1)} mm`;
+      document.getElementById("oral").textContent = `Aprox. ${fmt(t.cuffed * 3, 0)}-${fmt(t.uncuffed * 3, 0)} cm`;
+      document.getElementById("nasal").textContent = `Aprox. ${fmt(t.cuffed * 3 + 2, 0)}-${fmt(t.uncuffed * 3 + 2, 0)} cm`;
+
+      tablaFarmacos(meds.pcr, "tablaPCR", peso);
+
+      const j1 = 2 * peso;
+      const j2 = 4 * peso;
+      document.querySelector("#tablaPCR table tbody").insertAdjacentHTML("beforeend",
+        `<tr>
+          <td><strong>Desfibrilación</strong></td>
+          <td>Bifásica</td>
+          <td>1.ª 2 J/kg; posteriores 4 J/kg</td>
+          <td class="dose">1.ª ${fmt(j1, 0)} J</td>
+          <td class="dose">2.ª/3.ª ${fmt(j2, 0)} J</td>
+          <td><span class="note">Ajustar según protocolo/equipo.</span></td>
+        </tr>`
+      );
+
+      tablaFarmacos(meds.intubacion, "tablaIntubacion", peso);
+      tablaFarmacos(meds.reversion, "tablaReversion", peso);
+      tablaFarmacos(meds.otras, "tablaOtras", peso);
+    }
+
+    function limpiarPaciente() {
+      document.getElementById("nombre").value = "";
+      document.getElementById("edad").value = "8";
+      document.getElementById("peso").value = "36";
+      calcular();
+    }
+
+    function cargarPresentaciones() {
+      const tbody = document.querySelector("#tablaPresentaciones tbody");
+      tbody.innerHTML = presentaciones.map(p => `<tr>
+        <td><strong>${p[0]}</strong></td>
+        <td>${p[1]}</td>
+        <td>${p[2]}</td>
+        <td>${p[3] || "—"}</td>
+      </tr>`).join("");
+    }
+
+    document.getElementById("edad").addEventListener("input", calcular);
+    document.getElementById("peso").addEventListener("input", calcular);
+    document.getElementById("nombre").addEventListener("input", calcular);
+
+    cargarPresentaciones();
+    calcular();
+  </script>
+
+  <script>
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", () => {
+        navigator.serviceWorker.register("./service-worker.js")
+          .then(() => console.log("Service Worker registrado correctamente"))
+          .catch(err => console.warn("No se pudo registrar el Service Worker:", err));
+      });
+    }
+  </script>
+</body>
+</html>

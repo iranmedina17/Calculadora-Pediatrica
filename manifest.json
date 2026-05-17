@@ -1,0 +1,42 @@
+{
+  "id": "./",
+  "name": "PCR Pediátrica",
+  "short_name": "PCR Pediátrica",
+  "description": "Calculadora rápida de apoyo para PCR pediátrica, vía aérea y dosis por peso.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "display_override": ["standalone", "minimal-ui", "browser"],
+  "background_color": "#f4f7f8",
+  "theme_color": "#0b6477",
+  "orientation": "portrait",
+  "categories": ["medical", "productivity", "utilities"],
+  "lang": "es",
+  "dir": "ltr",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "maskable-icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "logo.png",
+      "sizes": "1024x1024",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}
